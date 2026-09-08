@@ -2,7 +2,7 @@ package ma.youcode.lineperm.service;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import org.mindrot.jbcrypt.BCrypt;
 import ma.youcode.lineperm.model.User;
 
 
@@ -12,15 +12,15 @@ public class UserService{
    
 
 
-    public boolean createUser(String login ,  String passwordHash){
+    public boolean createUser(String login ,  String password){
 
-        if (login == null|| passwordHash==null){
+        if (login == null|| password==null){
             return false;
         }
 
         login = login.trim();
 
-        if (login.isEmpty()||passwordHash.isEmpty()){
+        if (login.isEmpty()||password.isEmpty()){
             return false;
         }
         if (login.contains(" ")||login.contains(":")){
@@ -30,8 +30,10 @@ public class UserService{
         if (users.containsKey(login)){
             return false;
         }
+
+        String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
         
-        User user = new User(login , passwordHash);
+        User user = new User(login , password);
 
         users.put(login , user);
 
@@ -46,4 +48,28 @@ public class UserService{
         }
         return users.get(login);
     }
+
+    public User authenticate(String login ,String password){
+        if(login==null||password==null){
+            return null;
+
+
+        }
+
+        login=login.trim();
+
+        User user=users.get(login);
+
+        if(user==null){
+            return null;
+        }
+        boolean passwordCorrct = BCrypt.checkpw(password,user.getPasswordHash());
+
+        if(!passwordCorrct){
+            return null;
+        }
+        return user;
+
+    }
+    
 }
