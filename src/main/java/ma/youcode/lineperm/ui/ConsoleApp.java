@@ -24,7 +24,7 @@ public class ConsoleApp {
     running = true;
 
     System.out.println("Bienvenue dans LinePermission.");
-    System.out.println("Écrivez exit pour quitter.");
+    System.out.println("Ecrivez exit pour quitter.");
 
     while (running && scanner.hasNextLine()) {
 
@@ -53,7 +53,7 @@ public class ConsoleApp {
 
     case "exit":
         running = false;
-        System.out.println("Au revoir !");
+        System.out.println("Au revoir");
         break;
 
     default:
@@ -66,7 +66,7 @@ public class ConsoleApp {
 
     if (currentUser != null) {
         System.out.println(
-                "Déconnectez-vous avant de créer un compte."
+                "deconnectez vous avant de creer un compte"
         );
         return;
     }
@@ -93,7 +93,7 @@ public class ConsoleApp {
 
     if (currentUser != null) {
         System.out.println(
-                "Une session est déjà ouverte."
+                "Une session est deja ouverte"
         );
         return;
     }
@@ -108,13 +108,13 @@ public class ConsoleApp {
             userService.authenticate(login, password);
 
     if (user == null) {
-        System.out.println("Identifiants incorrects.");
+        System.out.println("identifiants incorrects.");
         return;
     }
 
     currentUser = user;
 
-    System.out.println("Connexion réussie.");
+    System.out.println("connexion reussie.");
 }
 
 
@@ -132,14 +132,14 @@ private void handleLogout() {
 
     if (currentUser == null) {
         System.out.println(
-                "Aucun utilisateur connecté."
+                "Aucun utilisateur connecte"
         );
         return;
     }
 
     currentUser = null;
 
-    System.out.println("Déconnexion réussie.");
+    System.out.println("Deconnexion reussie.");
 }
 
    
