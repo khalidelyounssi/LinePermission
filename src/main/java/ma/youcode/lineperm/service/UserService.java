@@ -98,7 +98,6 @@ public class UserService{
 
          lines.add(line);
 
-        
 
     }
             try {
@@ -118,8 +117,7 @@ public class UserService{
     }
 
     try {
-        List<String> lines =
-                Files.readAllLines(usersFile);
+        List<String> lines =Files.readAllLines(usersFile);
 
         for (String line : lines) {
 
@@ -136,8 +134,7 @@ public class UserService{
             String login = parts[0];
             String passwordHash = parts[1];
 
-            User user =
-                    new User(login, passwordHash);
+            User user =new User(login, passwordHash);
 
             users.put(login, user);
         }

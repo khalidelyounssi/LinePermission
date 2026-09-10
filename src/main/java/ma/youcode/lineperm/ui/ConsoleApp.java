@@ -30,8 +30,7 @@ public class ConsoleApp {
 
         printPrompt();
 
-        String command =
-                scanner.nextLine().trim().toLowerCase();
+        String command =scanner.nextLine().trim().toLowerCase();
 
         if (command.isEmpty()) {
             continue;
@@ -65,9 +64,7 @@ public class ConsoleApp {
     private void handleSignup() {
 
     if (currentUser != null) {
-        System.out.println(
-                "deconnectez vous avant de creer un compte"
-        );
+        System.out.println("deconnectez vous avant de creer un compte");
         return;
     }
 
@@ -77,8 +74,7 @@ public class ConsoleApp {
     System.out.print("mot passe : ");
     String password = scanner.nextLine();
 
-    boolean created =
-            userService.createUser(login, password);
+    boolean created =userService.createUser(login, password);
 
     if (created) {
         System.out.println("Compte cree avec succes.");
@@ -92,9 +88,7 @@ public class ConsoleApp {
     private void handleLogin() {
 
     if (currentUser != null) {
-        System.out.println(
-                "Une session est deja ouverte"
-        );
+        System.out.println("Une session est deja ouverte");
         return;
     }
 
@@ -104,8 +98,7 @@ public class ConsoleApp {
     System.out.print("Mot de passe : ");
     String password = scanner.nextLine();
 
-    User user =
-            userService.authenticate(login, password);
+    User user =userService.authenticate(login, password);
 
     if (user == null) {
         System.out.println("identifiants incorrects.");
