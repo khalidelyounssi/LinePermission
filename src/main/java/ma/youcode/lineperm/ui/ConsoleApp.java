@@ -1,21 +1,26 @@
 package ma.youcode.lineperm.ui;
 
+import java.text.FieldPosition;
 import java.util.Scanner;
 
 import ma.youcode.lineperm.model.User;
 import ma.youcode.lineperm.service.UserService;
+import ma.youcode.lineperm.service.FileService;
+import java.util.List;
 
 public class ConsoleApp {
     private final UserService userService;
+    private final FileService fileService;
 
     private final Scanner scanner;
     private User currentUser;
     private boolean running;
 
-    public ConsoleApp(UserService userService) {
+    public ConsoleApp(UserService userService,FileService fileService) {
         this.userService = userService;
-        this.scanner = new Scanner(System.in);
-        this.currentUser = null;
+    this.fileService = fileService;
+    this.scanner = new Scanner(System.in);
+    this.currentUser = null;
     }
 
    
@@ -30,19 +35,30 @@ public class ConsoleApp {
 
         printPrompt();
 
-        String command =scanner.nextLine().trim().toLowerCase();
+            String input = scanner.nextLine().trim();
 
-        if (command.isEmpty()) {
-            continue;
-        }
+            if (input.isEmpty()) {
+                continue;
+            }
+
+            String[] parts = input.split("\\s+", 2);
+
+            String command = parts[0].toLowerCase();
+
+            String argument = "";
+
+            if (parts.length == 2) {
+                argument = parts[1].trim();
+}
+        
 
         switch (command) {
 
-    case "signup":
+         case "signup":
         handleSignup();
         break;
 
-    case "login":
+        case "login":
         handleLogin();
         break;
 
@@ -50,7 +66,20 @@ public class ConsoleApp {
         handleLogout();
         break;
 
-    case "exit":
+        case "touch":
+        handleTouch(argument);
+        break;
+        case "ls":
+        handleLs(argument);
+        break;
+        case "nano":
+        handleNano(argument);
+        break;
+        case "cat":
+        handleCat(argument);
+        break;
+
+         case "exit":
         running = false;
         System.out.println("Au revoir");
         break;
@@ -135,6 +164,130 @@ private void handleLogout() {
     System.out.println("Deconnexion reussie.");
 }
 
+private void handleTouch(String name) {
+
+    if (currentUser == null) {
+        System.out.println("aucun utilisateur connecte");
+        return;
+    }
+
+    if (name == null || name.isEmpty()) {
+        System.out.println("le nom du fichier est obligatoire.");
+        return;
+    }
+
+    boolean created =fileService.createFile(name,currentUser.getLogin());
+
+    if (created) {
+        System.out.println("Fichier cree");
+    } else {
+        System.out.println("impossible de creer le fichier.");
+    }
+}
+
+private void handleLs(String option) {
+
+    if (currentUser == null ) {
+        System.out.println("Aucun utilisateur connecté.");
+        return;
+    }
+
+    if (!"-l".equals(option)) {
+        System.out.println("Utilisation : ls -l");
+        return;
+    }
+
+    List<String> files = fileService.listFiles();
+
+    if (files.isEmpty()) {
+        System.out.println("Aucun fichier.");
+        return;
+    }
+
+    for (String file : files) {
+        System.out.println(file);
+    }
+}
+private void handleNano(String name) {
+
+    if (currentUser == null) {
+        System.out.println("Aucun utilisateur connecté.");
+        return;
+    }
+
+    if (name == null || name.isEmpty()) {
+        System.out.println("utilisation : nano <nomFichier>");
+        return;
+    }
+
+    if (fileService.findFile(name) == null) {
+        System.out.println("Fichier introuvable.");
+        return;
+    }
+
+    if (!fileService.canWriteFile(
+            name,
+            currentUser.getLogin()
+    )) {
+        System.out.println("Permission denied.");
+        return;
+    }
+
+    System.out.println(
+            "ecrivez le contenu. Tapez EOF pour terminer."
+    );
+
+    String contenu = "";
+
+    while (scanner.hasNextLine()) {
+
+        String line = scanner.nextLine();
+
+        if (line.equals("EOF")) {
+            break;
+        }
+
+        contenu = contenu + line + "\n";
+    }
+
+    boolean written = fileService.writeFile(name,currentUser.getLogin(),contenu);
+
+    if (written) {
+        System.out.println("Fichier modifié.");
+    } else {
+        System.out.println(
+                "impossible de modifier le fichier."
+        );
+    }
+}
+private void handleCat(String name) {
+
+    if (currentUser == null) {
+        System.out.println("Aucun utilisateur connecté.");
+        return;
+    }
+
+    if (name == null || name.trim().isEmpty()) {
+        System.out.println("Utilisation : cat <nomFichier>");
+        return;
+    }
+
+    name = name.trim();
+
+    if (fileService.findFile(name) == null) {
+        System.out.println("Fichier introuvable.");
+        return;
+    }
+
+    String contenu = fileService.readFile(name,currentUser.getLogin());
+
+    if (contenu == null) {
+        System.out.println("Permission denied.");
+    } else {
+        System.out.println(contenu);
+    }
+}
+}
+
    
  
-}

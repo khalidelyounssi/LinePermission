@@ -1,53 +1,59 @@
 package ma.youcode.lineperm.access;
 
 import ma.youcode.lineperm.model.FichierProtege;
-import ma.youcode.lineperm.model.User;
 
 public class ControleAcces {
 
-    public static boolean isOwner(
-            User user,
-            FichierProtege fichier
-    ) {
-        if (user == null || fichier == null) {
-            return false;
+
+    public static boolean isOwner(String login, FichierProtege fichier) {
+
+        if (login == null || fichier == null) {
+                       return false;
         }
 
-        return fichier.getOwner().equals(
-                user.getLogin()
-        );
+        if (fichier.getOwner().equals(login)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public static boolean canAccess(
-            User user,
-            FichierProtege fichier,
-            char permission
-    ) {
-        if (user == null || fichier == null) {
+
+    public static boolean hasOwnerP(FichierProtege fichier, char p) {
+
+        if (fichier == null) {
             return false;
         }
 
-        permission =
-                Character.toLowerCase(permission);
+        p = Character.toLowerCase(p);
 
-        if (isOwner(user, fichier)) {
+        switch (p) {
 
-            switch (permission) {
-                case 'r':
-                    return fichier.isOwnerRead();
+            case 'r':
+                return fichier.isOwnerRead();
 
-                case 'w':
-                    return fichier.isOwnerWrite();
+            case 'w':
+                return fichier.isOwnerWrite();
 
-                case 'd':
-                    return fichier.isOwnerDelete();
+            case 'd':
+                return fichier.isOwnerDelete();
 
-                default:
-                    return false;
-            }
+            default:
+                return false;
+        }
+    }
+
+
+    public static boolean hasAutresP(FichierProtege fichier, char p) {
+
+        if (fichier == null) {
+            return false;
         }
 
-        switch (permission) {
+        p = Character.toLowerCase(p);
+
+        switch (p) {
+
             case 'r':
                 return fichier.isAutresRead();
 
@@ -59,6 +65,23 @@ public class ControleAcces {
 
             default:
                 return false;
+        }
+    }
+
+
+    public static boolean canAccess(String login, FichierProtege fichier, char p) {
+
+        if (login == null || fichier == null) {
+            return false;
+        }
+
+        login = login.trim();
+        p = Character.toLowerCase(p);
+
+        if (isOwner(login, fichier)) {
+            return hasOwnerP(fichier, p);
+        } else {
+            return hasAutresP(fichier, p);
         }
     }
 }
