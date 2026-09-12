@@ -5,12 +5,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.IOException;
+
 import ma.youcode.lineperm.access.ControleAcces;
 import ma.youcode.lineperm.model.FichierProtege;
 
 public class FileService {
 
     private final Map<String, FichierProtege> fichiers = new HashMap<>();
+
+    private final Path filesDirectory =Path.of("data", "files");
+
+    private final Path permissionsFile =Path.of("data", "files.txt");
+
+    public FileService() {
+
+    try {
+        Files.createDirectories(filesDirectory);
+    } catch (IOException e) {
+        throw new RuntimeException(
+                "Impossible de creer le dossier des fichiers.",
+                e
+        );
+    }
+    loadFiles();
+}
 
 
     public boolean isValidName(String name) {
@@ -35,47 +56,65 @@ public class FileService {
 
     public boolean createFile(String name, String owner) {
 
-        if (!isValidName(name)) {
-            return false;
-        }
+    if (!isValidName(name)) {
+        return false;
+    }
 
-        name = name.trim();
+    name = name.trim();
 
-        if (owner == null) {
-            return false;
-        }
+    if (owner == null) {
+        return false;
+    }
 
-        owner = owner.trim();
+    owner = owner.trim();
 
-        if (owner.isEmpty()) {
-            return false;
-        }
+    if (owner.isEmpty()) {
+        return false;
+    }
 
-        if (fichiers.containsKey(name)) {
-            return false;
-        }
+    if (fichiers.containsKey(name)) {
+        return false;
+    }
 
-        FichierProtege fiche = new FichierProtege(name, owner);
+    Path filePath = filesDirectory.resolve(name);
 
-        fichiers.put(name, fiche);
+    if (Files.exists(filePath)) {
+        return false;
+    }
+
+    FichierProtege file =
+            new FichierProtege(name, owner);
+
+    try {
+
+        Files.createFile(filePath);
+
+        fichiers.put(name, file);
+
+        saveFiles();
 
         return true;
+
+    } catch (IOException e) {
+
+        return false;
     }
+}
 
 
     public List<String> listFiles() {
 
-        List<String> lines = new ArrayList<>();
+    List<String> lines = new ArrayList<>();
 
-        for (FichierProtege fichier : fichiers.values()) {
+    for (FichierProtege file : fichiers.values()) {
 
-            String line = fichier.getPermissions()+" "+fichier.getOwner()+" "+fichier.getNom();
+        String line =file.getPermissions() + " " +file.getOwner() + " " +file.getNom();
 
-            lines.add(line);
-        }
-
-        return lines;
+        lines.add(line);
     }
+
+    return lines;
+}
     public FichierProtege findFile(String name){
         if (name == null ){
             return null;
@@ -89,26 +128,7 @@ public class FileService {
 
     }
 
-    public boolean deleteFile(String name , String login){
-        if(name ==null||login== null){
-            return false;
-        }
-        name = name.trim();
 
-        FichierProtege file = findFile(name);
-
-        if(file==null){
-            return false;
-        }
-
-        if(!ControleAcces.canAccess(login, file, 'd')){
-            return false;
-        }
-        else{
-            fichiers.remove(name);
-            return true;
-        }
-    }
     public boolean canReadFile(String name, String login){
          if(name ==null||login== null){
             return false;
@@ -161,8 +181,18 @@ public class FileService {
         if(!ControleAcces.canAccess(login, file, 'w')){
             return false;
         }else{
-            file.setContenu(contenu);
-            return true;
+            Path filePath = filesDirectory.resolve(name);
+
+                    try {
+
+                        Files.writeString(filePath, contenu);
+
+                        return true;
+
+                    } catch (IOException e) {
+
+                        return false;
+                    }
         }
 
     }
@@ -179,9 +209,13 @@ public class FileService {
         }
         if(!ControleAcces.canAccess(login, file, 'r')){
             return null;
-        }else{
-           return  file.getContenu();
-        }
+        }Path filePath = filesDirectory.resolve(name);
+
+            try {
+                return Files.readString(filePath);
+            } catch (IOException e) {
+                return null;
+            }
         
     }
     public boolean grantPermission(String name,String login,char p){
@@ -199,7 +233,13 @@ public class FileService {
         if(!ControleAcces.isOwner(login, file)){
             return  false;
         }
-        return file.grantP(p);
+        boolean success = file.grantP(p);
+
+            if (success) {
+                saveFiles();
+            }
+
+            return success;
 
     }
     public boolean removePermission(String name,String login,char p){
@@ -217,7 +257,105 @@ public class FileService {
         if(!ControleAcces.isOwner(login, file)){
             return  false;
         }
-        return file.removeP(p);
+        boolean success = file.removeP(p);
+
+            if (success) {
+                saveFiles();
+            }
+
+            return success;
 
     }
+
+
+    private void saveFiles() {
+
+    List<String> lines = new ArrayList<>();
+
+    for (FichierProtege file : fichiers.values()) {
+
+        String permissions = file.getPermissions();
+
+        String ownerPermissions = permissions.substring(0, 3);
+        String autresPermissions = permissions.substring(4);
+
+        String line =file.getNom() + ";" +file.getOwner() + ";" +ownerPermissions + ";" +autresPermissions;
+
+        lines.add(line);
+    }
+
+    try {
+        Files.createDirectories(permissionsFile.getParent());
+        Files.write(permissionsFile, lines);
+    } catch (IOException e) {
+        throw new RuntimeException(
+                "Impossible de sauvegarder les fichiers.",
+                e
+        );
+    }
+}
+
+
+        private void loadFiles() {
+
+    if (!Files.exists(permissionsFile)) {
+        return;
+    }
+
+    try {
+        List<String> lines = Files.readAllLines(permissionsFile);
+
+        for (String line : lines) {
+
+            if (line.trim().isEmpty()) {
+                continue;
+            }
+
+            String[] parts = line.split(";", 4);
+
+            if (parts.length != 4) {
+                continue;
+            }
+
+            String name = parts[0];
+            String owner = parts[1];
+            String ownerPermissions = parts[2];
+            String autresPermissions = parts[3];
+
+            if (!isValidName(name)) {
+                continue;
+            }
+
+            if (ownerPermissions.length() != 3
+                    || autresPermissions.length() != 3) {
+                continue;
+            }
+
+            Path filePath = filesDirectory.resolve(name);
+
+            if (!Files.exists(filePath)) {
+                continue;
+            }
+
+            FichierProtege file = new FichierProtege(
+                    name,
+                    owner,
+                    ownerPermissions.charAt(0) == 'r',
+                    ownerPermissions.charAt(1) == 'w',
+                    ownerPermissions.charAt(2) == 'd',
+                    autresPermissions.charAt(0) == 'r',
+                    autresPermissions.charAt(1) == 'w',
+                    autresPermissions.charAt(2) == 'd'
+            );
+
+            fichiers.put(name, file);
+        }
+
+    } catch (IOException e) {
+        throw new RuntimeException(
+                "Impossible de charger les fichiers.",
+                e
+        );
+    }
+}
 }

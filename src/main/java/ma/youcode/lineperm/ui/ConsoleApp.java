@@ -78,6 +78,9 @@ public class ConsoleApp {
         case "cat":
         handleCat(argument);
         break;
+        case "chmod":
+        handleChmod(argument);
+        break;
 
          case "exit":
         running = false;
@@ -285,6 +288,78 @@ private void handleCat(String name) {
         System.out.println("Permission denied.");
     } else {
         System.out.println(contenu);
+    }
+}
+
+
+
+
+private void handleChmod(String argument) {
+
+    if (currentUser == null) {
+        System.out.println("Aucun utilisateur connecté.");
+        return;
+    }
+
+    if (argument == null || argument.trim().isEmpty()) {
+        System.out.println("Utilisation : chmod <r|w|d|-r|-w|-d> <nomFichier>");
+        return;
+    }
+
+    String[] parts = argument.trim().split("\\s+", 2);
+
+    if (parts.length != 2) {
+        System.out.println("Utilisation : chmod <r|w|d|-r|-w|-d> <nomFichier>");
+        return;
+    }
+
+    String permissionArgument = parts[0];
+    String fileName = parts[1].trim();
+
+    boolean remove = permissionArgument.startsWith("-");
+
+    String permissionText;
+
+    if (remove) {
+        permissionText = permissionArgument.substring(1);
+    } else {
+        permissionText = permissionArgument;
+    }
+
+    if (permissionText.length() != 1) {
+        System.out.println("Permission invalide.");
+        return;
+    }
+
+    char permission = permissionText.charAt(0);
+
+    if (permission != 'r'&& permission != 'w'&& permission != 'd') {
+        System.out.println("Permission invalide.");
+        return;
+    }
+
+    if (fileService.findFile(fileName) == null) {
+        System.out.println("Fichier introuvable.");
+        return;
+    }
+
+    boolean success;
+
+    if (remove) {
+        success = fileService.removePermission(fileName,currentUser.getLogin(),permission);
+    } else {
+        success = fileService.grantPermission(fileName,currentUser.getLogin(),permission);
+    }
+
+    if (!success) {
+        System.out.println("Permission denied.");
+        return;
+    }
+
+    if (remove) {
+        System.out.println("Droit retiré.");
+    } else {
+        System.out.println("Droit accordé.");
     }
 }
 }

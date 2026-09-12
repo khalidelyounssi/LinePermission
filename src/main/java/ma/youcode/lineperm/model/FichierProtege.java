@@ -20,18 +20,39 @@ public class FichierProtege {
 
 
     public FichierProtege(String nom, String owner) {
+    this(
+        nom,
+        owner,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+    );
+}
 
-        this.nom = nom;
-        this.owner = owner;
+        public FichierProtege(
+                String nom,
+                String owner,
+                boolean ownerRead,
+                boolean ownerWrite,
+                boolean ownerDelete,
+                boolean autresRead,
+                boolean autresWrite,
+                boolean autresDelete
+        ) {
+            this.nom = nom;
+            this.owner = owner;
 
-        this.ownerRead = true;
-        this.ownerWrite = true;
-        this.ownerDelete = true;
+            this.ownerRead = ownerRead;
+            this.ownerWrite = ownerWrite;
+            this.ownerDelete = ownerDelete;
 
-        this.autresRead = false;
-        this.autresWrite = false;
-        this.autresDelete = false;
-    }
+            this.autresRead = autresRead;
+            this.autresWrite = autresWrite;
+            this.autresDelete = autresDelete;
+        }
 
 
     public String getNom() {
@@ -112,6 +133,7 @@ public class FichierProtege {
 
             case 'w':
                 autresWrite = true;
+                autresRead = true;
                 return true;
 
             case 'd':
