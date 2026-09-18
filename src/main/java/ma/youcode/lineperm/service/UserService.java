@@ -1,25 +1,24 @@
 package ma.youcode.lineperm.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.mindrot.jbcrypt.BCrypt;
-import ma.youcode.lineperm.model.User;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.io.IOException;
+import org.mindrot.jbcrypt.BCrypt;
+import ma.youcode.lineperm.model.User;
 
 
 public class UserService{
 
     private final Map<String, User> users = new HashMap<>();
+    private final Path usersFile = Path.of("data", "users.txt");
 
-    private final Path usersFile =Path.of("data", "users.txt");
-
-            public UserService() {
-                readUsers();
-            }
+    public UserService() {
+        loadUsers();
+    }
    
 
 
@@ -44,7 +43,7 @@ public class UserService{
 
         String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
         
-        User user = new User(login , passwordHash);
+        User user = new User(login, passwordHash);
 
         users.put(login , user);
         saveUsers();
@@ -80,7 +79,12 @@ public class UserService{
         if(user==null){
             return null;
         }
-        boolean passwordCorrct = BCrypt.checkpw(password,user.getPasswordHash());
+        boolean passwordCorrct;
+        try {
+            passwordCorrct = BCrypt.checkpw(password, user.getPasswordHash());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
 
         if(!passwordCorrct){
             return null;
@@ -89,60 +93,43 @@ public class UserService{
 
     }
 
+    private void loadUsers() {
+        if (!Files.exists(usersFile)) {
+            return;
+        }
 
+        try {
+            for (String line : Files.readAllLines(usersFile)) {
+                String[] parts = line.split(":", 2);
+                if (parts.length != 2) {
+                    continue;
+                }
 
-    public void saveUsers(){
-        List<String> lines = new ArrayList<>();
-       for(User user : users.values()){ 
-        String line = user.getLogin() +":"+user.getPasswordHash();
+                String login = parts[0].trim();
+                String passwordHash = parts[1].trim();
+                if (login.isEmpty() || passwordHash.isEmpty()) {
+                    continue;
+                }
 
-         lines.add(line);
-
-
+                users.put(login, new User(login, passwordHash));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Impossible de charger les utilisateurs.", e);
+        }
     }
-            try {
+
+    private void saveUsers() {
+        List<String> lines = new ArrayList<>();
+        for (User user : users.values()) {
+            lines.add(user.getLogin() + ":" + user.getPasswordHash());
+        }
+
+        try {
             Files.createDirectories(usersFile.getParent());
             Files.write(usersFile, lines);
-
         } catch (IOException e) {
-            throw new RuntimeException(
-                    "Impossible de sauvegarder les utilisateurs.",e);
+            throw new RuntimeException("Impossible de sauvegarder les utilisateurs.", e);
         }
     }
-
-    private void readUsers() {
-
-    if (!Files.exists(usersFile)) {
-        return;
-    }
-
-    try {
-        List<String> lines =Files.readAllLines(usersFile);
-
-        for (String line : lines) {
-
-            if (line.trim().isEmpty()) {
-                continue;
-            }
-
-            String[] parts = line.split(":", 2);
-
-            if (parts.length != 2) {
-                continue;
-            }
-
-            String login = parts[0];
-            String passwordHash = parts[1];
-
-            User user =new User(login, passwordHash);
-
-            users.put(login, user);
-        }
-
-    } catch (IOException e) {
-        throw new RuntimeException(
-                "impossible de charger les user",e);
-    }
-}
     
 }

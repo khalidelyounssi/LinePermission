@@ -1,6 +1,5 @@
 package ma.youcode.lineperm.ui;
 
-import java.text.FieldPosition;
 import java.util.Scanner;
 
 import ma.youcode.lineperm.model.User;
@@ -29,13 +28,15 @@ public class ConsoleApp {
     running = true;
 
     System.out.println("Bienvenue dans LinePermission.");
-    System.out.println("Ecrivez exit pour quitter.");
-
-    while (running && scanner.hasNextLine()) {
-
+    System.out.println("Écrivez exit pour quitter.");
+    while (running) {
         printPrompt();
 
-            String input = scanner.nextLine().trim();
+        if (!scanner.hasNextLine()) {
+            break;
+        }
+
+        String input = scanner.nextLine().trim();
 
             if (input.isEmpty()) {
                 continue;
@@ -152,6 +153,7 @@ private void printPrompt() {
                 currentUser.getLogin() + "@linperm> "
         );
     }
+    System.out.flush();
 }
 private void handleLogout() {
 
