@@ -2,6 +2,12 @@ package ma.youcode.lineperm.ui;
 
 import java.util.Scanner;
 
+import java.util.Map;
+import java.util.Optional;
+
+import ma.youcode.lineperm.model.AccessLog;
+import ma.youcode.lineperm.service.LogAnalyzerService;
+
 import ma.youcode.lineperm.model.User;
 import ma.youcode.lineperm.service.UserService;
 import ma.youcode.lineperm.service.FileService;
@@ -10,14 +16,17 @@ import java.util.List;
 public class ConsoleApp {
     private final UserService userService;
     private final FileService fileService;
+    private final LogAnalyzerService logAnalyzerService;
 
     private final Scanner scanner;
     private User currentUser;
     private boolean running;
 
-    public ConsoleApp(UserService userService,FileService fileService) {
+    public ConsoleApp(UserService userService,FileService fileService,LogAnalyzerService logAnalyzerService) {
         this.userService = userService;
     this.fileService = fileService;
+    this.logAnalyzerService = logAnalyzerService;
+
     this.scanner = new Scanner(System.in);
     this.currentUser = null;
     }
@@ -28,15 +37,17 @@ public class ConsoleApp {
     running = true;
 
     System.out.println("Bienvenue dans LinePermission.");
-    System.out.println("Écrivez exit pour quitter.");
-    while (running) {
-        printPrompt();
+    System.out.println("Ecrivez exit pour quitter.");
 
-        if (!scanner.hasNextLine()) {
-            break;
-        }
+   while (running) {
 
-        String input = scanner.nextLine().trim();
+    printPrompt();
+
+    if (!scanner.hasNextLine()) {
+        break;
+    }
+
+    String input = scanner.nextLine().trim();
 
             if (input.isEmpty()) {
                 continue;
@@ -81,6 +92,9 @@ public class ConsoleApp {
         break;
         case "chmod":
         handleChmod(argument);
+        break;
+        case "stats":
+            handleStats();
         break;
 
          case "exit":
@@ -363,6 +377,104 @@ private void handleChmod(String argument) {
     } else {
         System.out.println("Droit accordé.");
     }
+}
+
+    private void handleStats() {
+
+    boolean statsRunning = true;
+
+    while (statsRunning) {
+
+        System.out.println("\n--- Statistiques ---");
+        System.out.println("1 - Total des actions");
+        System.out.println("2 - Accès refusés");
+        System.out.println("3 - Utilisateurs");
+        System.out.println("4 - Actions par utilisateur");
+        System.out.println("5 - Top 3 fichiers");
+        System.out.println("6 - Refus d'un utilisateur");
+        System.out.println("7 - Utilisateur le plus actif");
+        System.out.println("8 - Actions par type");
+        System.out.println("0 - Retour");
+
+        System.out.print("Choix : ");
+        String choix = scanner.nextLine().trim();
+
+        switch (choix) {
+
+            case "1":
+                System.out.println(
+                    "Total : " + logAnalyzerService.totalActione()
+                );
+                break;
+
+            case "2":
+                System.out.println(
+                    "Refusés : " + logAnalyzerService.totalRefuse()
+                );
+                break;
+
+            case "3":
+                System.out.println(
+                    logAnalyzerService.getDestincUser()
+                );
+                break;
+
+            case "4":
+                System.out.println(
+                    logAnalyzerService.actionByUser()
+                );
+                break;
+
+            case "5":
+                System.out.println(
+                    logAnalyzerService.actionByFile()
+                );
+                break;
+
+            case "6":
+                    System.out.print("Utilisateur : ");
+                    String user = scanner.nextLine().trim();
+
+                    List<AccessLog> refus =
+                            logAnalyzerService.getReAccessByUser(user);
+
+                    if (refus.isEmpty()) {
+                        System.out.println("Aucun refus.");
+                    } else {
+                        for (AccessLog log : refus) {
+                            System.out.println(log.getDate() + " " +log.getHeure() + " " +log.getAction() + " " +log.getFichier() + " " +log.getResultat() );}
+                    }
+                    break;
+
+            case "7":
+                Optional<Map.Entry<String, Long>> mostActive =
+                        logAnalyzerService.getMostActiveUser();
+
+                if (mostActive.isPresent()) {
+                    Map.Entry<String, Long> result = mostActive.get();
+                    System.out.println(
+                            result.getKey() + " : " + result.getValue()
+                    );
+                } else {
+                    System.out.println("Aucune donnée.");
+                }
+                break;
+
+            case "8":
+                System.out.println(
+                    logAnalyzerService.actionByType()
+                );
+                break;
+
+            case "0":
+                statsRunning = false;
+                break;
+
+            default:
+                System.out.println("Choix incorrect.");
+        }
+    }
+
 }
 
 

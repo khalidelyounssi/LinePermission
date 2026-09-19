@@ -79,16 +79,18 @@ public class UserService{
         if(user==null){
             return null;
         }
-        boolean passwordCorrct;
+        boolean passwordCorrect;
+
         try {
-            passwordCorrct = BCrypt.checkpw(password, user.getPasswordHash());
+            passwordCorrect = BCrypt.checkpw(password, user.getPasswordHash());
         } catch (IllegalArgumentException e) {
             return null;
         }
 
-        if(!passwordCorrct){
+        if (!passwordCorrect) {
             return null;
         }
+
         return user;
 
     }
@@ -131,5 +133,5 @@ public class UserService{
             throw new RuntimeException("Impossible de sauvegarder les utilisateurs.", e);
         }
     }
-    
+
 }

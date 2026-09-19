@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import  java.util.Map;
+import java.util.Optional;
 
 import ma.youcode.lineperm.model.AccessLog;
 
@@ -16,7 +18,7 @@ public class LogAnalyzerService {
 
     private final Path logFile = Path.of("data","access.log");
 
-    private LogAnalyzerService(){
+    public  LogAnalyzerService(){
         loadLogs();
     }
 
@@ -32,7 +34,7 @@ public class LogAnalyzerService {
                     logs.addAll(loadLogs);
 
         }catch(IOException e){
-            System.out.println("errur dont le fiche");
+            System.out.println("Impossible de lire le fichier access.log.");
 
         }
     }
@@ -56,5 +58,65 @@ public class LogAnalyzerService {
 
         
     }
-    
+
+    public long totalActione(){
+          long totalAc = logs.stream().count();
+          return totalAc;
+    }
+
+    public long totalRefuse(){
+        long totalRe = logs.stream().filter(l->"REFUSE".equals(l.getResultat())).count();
+        return totalRe;
+    }
+    public List<String> getDestincUser(){
+        List<String> destincUser = logs.stream().map(l->l.getUtilisateur()).distinct().sorted().collect(Collectors.toList());
+        return destincUser;
+    }
+
+    public Map<String, Long> actionByUser(){
+
+                 Map<String, Long> totalAcByUser = logs.stream().collect(Collectors.groupingBy(l->l.getUtilisateur(),Collectors.counting()));
+
+                 return totalAcByUser;
+    }
+    public List<Map.Entry<String, Long>>  actionByFile(){
+        Map<String, Long> totalByFile = logs.stream().collect(Collectors.groupingBy(l->l.getFichier(),Collectors.counting()));
+
+        List<Map.Entry<String, Long>> top3File =totalByFile.entrySet().stream().sorted((f1,f2)->Long.compare(f2.getValue(),f1.getValue())).limit(3).collect(Collectors.toList());
+
+        return top3File;
+    }
+
+    public  List<AccessLog> getReAccessByUser(String u){
+
+        if(u==null){
+            return new ArrayList<>();
+        }
+        String user = u.trim();
+
+         if(user.isEmpty()){
+
+        return new ArrayList<>();
+            }
+       
+
+        List<AccessLog> accessByUser = logs.stream().filter(l-> l.getUtilisateur().equalsIgnoreCase(user)).filter(l->"REFUSE".equals(l.getResultat())).collect(Collectors.toList());
+        return accessByUser;
+    }
+
+    public Optional<Map.Entry<String, Long>>getMostActiveUser() {
+
+    Map<String, Long> actionsByUser =
+            logs.stream().collect(Collectors.groupingBy(AccessLog::getUtilisateur,Collectors.counting()));
+
+    return actionsByUser.entrySet().stream().max((user1, user2) ->Long.compare(user1.getValue(),user2.getValue())
+            );
+}
+
+        public Map<String, Long> actionByType() {
+
+    Map<String, Long> totalByAction =logs.stream().collect(Collectors.groupingBy(log -> log.getAction(),Collectors.counting()));
+
+                    return totalByAction;
+}
 }
