@@ -1,6 +1,5 @@
 package ma.youcode.lineperm.ui;
 
-import java.text.FieldPosition;
 import java.util.Scanner;
 
 import java.util.Map;
@@ -168,7 +167,6 @@ private void printPrompt() {
                 currentUser.getLogin() + "@linperm> "
         );
     }
-
     System.out.flush();
 }
 private void handleLogout() {
@@ -449,11 +447,17 @@ private void handleChmod(String argument) {
                     break;
 
             case "7":
-                System.out.println(
-                    logAnalyzerService
-                        .getMostActiveUser()
-                        .orElse(null)
-                );
+                Optional<Map.Entry<String, Long>> mostActive =
+                        logAnalyzerService.getMostActiveUser();
+
+                if (mostActive.isPresent()) {
+                    Map.Entry<String, Long> result = mostActive.get();
+                    System.out.println(
+                            result.getKey() + " : " + result.getValue()
+                    );
+                } else {
+                    System.out.println("Aucune donnée.");
+                }
                 break;
 
             case "8":

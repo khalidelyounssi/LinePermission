@@ -34,7 +34,7 @@ public class LogAnalyzerService {
                     logs.addAll(loadLogs);
 
         }catch(IOException e){
-            System.out.println("errur dont le fiche");
+            System.out.println("Impossible de lire le fichier access.log.");
 
         }
     }
