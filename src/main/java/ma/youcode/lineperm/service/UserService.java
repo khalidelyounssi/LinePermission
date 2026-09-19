@@ -80,11 +80,18 @@ public class UserService{
         if(user==null){
             return null;
         }
-        boolean passwordCorrct = BCrypt.checkpw(password,user.getPasswordHash());
+        boolean passwordCorrect;
 
-        if(!passwordCorrct){
-            return null;
-        }
+            try {
+                passwordCorrect = BCrypt.checkpw(password,user.getPasswordHash());
+                
+                } catch (IllegalArgumentException e) {
+                return null;
+                    }
+
+                    if (!passwordCorrect) {
+                        return null;
+                    }
         return user;
 
     }
@@ -131,8 +138,12 @@ public class UserService{
                 continue;
             }
 
-            String login = parts[0];
-            String passwordHash = parts[1];
+            String login = parts[0].trim();
+            String passwordHash = parts[1].trim();
+
+                if (login.isEmpty() || passwordHash.isEmpty()) {
+                    continue;
+                }
 
             User user =new User(login, passwordHash);
 

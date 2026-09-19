@@ -54,22 +54,15 @@ public class TestLogAnalyzer {
                 List<Map.Entry<String, Long>> topFiles =
         service.actionByFile();
 
-topFiles.forEach(
-        file ->
-            System.out.println(
-                file.getKey() + " : " + file.getValue()
+topFiles.forEach(file ->System.out.println(file.getKey() + " : " + file.getValue()
             )
 );
+
+
             List<AccessLog> refusedLogs =
         service.getReAccessByUser(" KHALID ");
 
-refusedLogs.forEach(
-    refusedLog ->
-        System.out.println(
-            refusedLog.getAction()
-            + " - "
-            + refusedLog.getFichier()
-        )
+        refusedLogs.forEach(refusedLog ->System.out.println(refusedLog.getAction()+ " - "+ refusedLog.getFichier())
         
 );
 

@@ -5,9 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import  java.util.Map;
+import java.util.Optional;
 
 import ma.youcode.lineperm.model.AccessLog;
 
@@ -103,4 +103,20 @@ public class LogAnalyzerService {
         List<AccessLog> accessByUser = logs.stream().filter(l-> l.getUtilisateur().equalsIgnoreCase(user)).filter(l->"REFUSE".equals(l.getResultat())).collect(Collectors.toList());
         return accessByUser;
     }
+
+    public Optional<Map.Entry<String, Long>>getMostActiveUser() {
+
+    Map<String, Long> actionsByUser =
+            logs.stream().collect(Collectors.groupingBy(AccessLog::getUtilisateur,Collectors.counting()));
+
+    return actionsByUser.entrySet().stream().max((user1, user2) ->Long.compare(user1.getValue(),user2.getValue())
+            );
+}
+
+        public Map<String, Long> actionByType() {
+
+    Map<String, Long> totalByAction =logs.stream().collect(Collectors.groupingBy(log -> log.getAction(),Collectors.counting()));
+
+                    return totalByAction;
+}
 }
