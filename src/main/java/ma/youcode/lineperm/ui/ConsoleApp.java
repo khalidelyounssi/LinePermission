@@ -385,7 +385,7 @@ private void handleChmod(String argument) {
 
     while (statsRunning) {
 
-        System.out.println("\n--- Statistiques ---");
+        System.out.println("\n----- Statistiques ---");
         System.out.println("1 - Total des actions");
         System.out.println("2 - Accès refusés");
         System.out.println("3 - Utilisateurs");
@@ -402,32 +402,27 @@ private void handleChmod(String argument) {
         switch (choix) {
 
             case "1":
-                System.out.println(
-                    "Total : " + logAnalyzerService.totalActione()
+                System.out.println("Total : " + logAnalyzerService.totalActione()
                 );
                 break;
 
             case "2":
-                System.out.println(
-                    "Refusés : " + logAnalyzerService.totalRefuse()
+                System.out.println("Refusés : " + logAnalyzerService.totalRefuse()
                 );
                 break;
 
             case "3":
-                System.out.println(
-                    logAnalyzerService.getDestincUser()
+                System.out.println(logAnalyzerService.getDestincUser()
                 );
                 break;
 
             case "4":
-                System.out.println(
-                    logAnalyzerService.actionByUser()
+                System.out.println(logAnalyzerService.actionByUser()
                 );
                 break;
 
             case "5":
-                System.out.println(
-                    logAnalyzerService.actionByFile()
+                System.out.println(logAnalyzerService.actionByFile()
                 );
                 break;
 
@@ -438,22 +433,18 @@ private void handleChmod(String argument) {
                     List<AccessLog> refus =
                             logAnalyzerService.getReAccessByUser(user);
 
-                    if (refus.isEmpty()) {
-                        System.out.println("Aucun refus.");
+                    if (refus.isEmpty()) {System.out.println("Aucun refus.");
                     } else {
-                        for (AccessLog log : refus) {
-                            System.out.println(log.getDate() + " " +log.getHeure() + " " +log.getAction() + " " +log.getFichier() + " " +log.getResultat() );}
+                        for (AccessLog log : refus) {System.out.println(log.getDate() + " " +log.getHeure() + " " +log.getAction() + " " +log.getFichier() + " " +log.getResultat() );}
                     }
                     break;
 
             case "7":
-                Optional<Map.Entry<String, Long>> mostActive =
-                        logAnalyzerService.getMostActiveUser();
+                Optional<Map.Entry<String, Long>> mostActive =logAnalyzerService.getMostActiveUser();
 
                 if (mostActive.isPresent()) {
                     Map.Entry<String, Long> result = mostActive.get();
-                    System.out.println(
-                            result.getKey() + " : " + result.getValue()
+                    System.out.println(result.getKey() + " : " + result.getValue()
                     );
                 } else {
                     System.out.println("Aucune donnée.");
@@ -461,8 +452,7 @@ private void handleChmod(String argument) {
                 break;
 
             case "8":
-                System.out.println(
-                    logAnalyzerService.actionByType()
+                System.out.println(logAnalyzerService.actionByType()
                 );
                 break;
 
