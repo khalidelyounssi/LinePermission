@@ -52,6 +52,7 @@ public class FichierProtege {
             this.autresRead = autresRead;
             this.autresWrite = autresWrite;
             this.autresDelete = autresDelete;
+            this.contenu="";
         }
 
 
