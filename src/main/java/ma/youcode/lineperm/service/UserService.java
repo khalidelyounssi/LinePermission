@@ -42,7 +42,7 @@ public class UserService{
         }
 
         User existingUser = userDao.findByUsername(login);
-        
+
         if (existingUser != null) {
             return false;
         }
@@ -100,43 +100,6 @@ public class UserService{
     return user;
 }
 
-//     private void loadUsers() {
-//         if (!Files.exists(usersFile)) {
-//             return;
-//         }
 
-//         try {
-//             for (String line : Files.readAllLines(usersFile)) {
-//                 String[] parts = line.split(":", 2);
-//                 if (parts.length != 2) {
-//                     continue;
-//                 }
-
-//                 String login = parts[0].trim();
-//                 String passwordHash = parts[1].trim();
-//                 if (login.isEmpty() || passwordHash.isEmpty()) {
-//                     continue;
-//                 }
-
-//                 users.put(login, new User(login, passwordHash));
-//             }
-//         } catch (IOException e) {
-//             throw new RuntimeException("Impossible de charger les utilisateurs.", e);
-//         }
-//     }
-
-//     private void saveUsers() {
-//         List<String> lines = new ArrayList<>();
-//         for (User user : users.values()) {
-//             lines.add(user.getLogin() + ":" + user.getPasswordHash());
-//         }
-
-//         try {
-//             Files.createDirectories(usersFile.getParent());
-//             Files.write(usersFile, lines);
-//         } catch (IOException e) {
-//             throw new RuntimeException("Impossible de sauvegarder les utilisateurs.", e);
-//         }
-//     }
 
 }
