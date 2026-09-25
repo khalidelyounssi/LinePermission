@@ -323,31 +323,31 @@ public class FileService {
 
 
 
-    private void saveFiles() {
+    // private void saveFiles() {
 
-        List<String> lines = new ArrayList<>();
+    //     List<String> lines = new ArrayList<>();
 
-        for (FichierProtege file : fichiers.values()) {
+    //     for (FichierProtege file : fichiers.values()) {
 
-            String permissions = file.getPermissions();
+    //         String permissions = file.getPermissions();
 
-            String ownerPermissions = permissions.substring(0, 3);
-            String autresPermissions = permissions.substring(4);
+    //         String ownerPermissions = permissions.substring(0, 3);
+    //         String autresPermissions = permissions.substring(4);
 
-            String line = file.getNom() + ";" + file.getOwner() + ";" + ownerPermissions + ";" + autresPermissions;
+    //         String line = file.getNom() + ";" + file.getOwner() + ";" + ownerPermissions + ";" + autresPermissions;
 
-            lines.add(line);
-        }
+    //         lines.add(line);
+    //     }
 
-        try {
-            Files.createDirectories(permissionsFile.getParent());
-            Files.write(permissionsFile, lines);
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "Impossible de sauvegarder les fichiers.",
-                    e);
-        }
-    }
+    //     try {
+    //         Files.createDirectories(permissionsFile.getParent());
+    //         Files.write(permissionsFile, lines);
+    //     } catch (IOException e) {
+    //         throw new RuntimeException(
+    //                 "Impossible de sauvegarder les fichiers.",
+    //                 e);
+    //     }
+    // }
 
 
 

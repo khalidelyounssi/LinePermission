@@ -4,12 +4,20 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DatabaseConnection {
+public final class DatabaseConnection {
 
     private static final String URL = "jdbc:sqlite:data/audit.db";
 
-    public static Connection getConnection()throws SQLException {
+    private static final DatabaseConnection INSTANCE =new DatabaseConnection();
 
+    private DatabaseConnection() {
+    }
+
+    public static DatabaseConnection getInstance() {
+        return INSTANCE;
+    }
+
+    public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL);
     }
 }

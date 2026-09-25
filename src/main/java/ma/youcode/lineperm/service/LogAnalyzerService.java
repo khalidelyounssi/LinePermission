@@ -29,8 +29,7 @@ public class LogAnalyzerService {
         }
 
         try{
-            List<AccessLog> loadLogs = Files.readAllLines(logFile).stream()
-                                                                .map(this::parseLine).filter(l->l!=null).collect(Collectors.toList());
+            List<AccessLog> loadLogs = Files.readAllLines(logFile).stream().map(this::parseLine).filter(l->l!=null).collect(Collectors.toList());
                     logs.addAll(loadLogs);
 
         }catch(IOException e){
