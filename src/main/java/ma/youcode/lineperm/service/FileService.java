@@ -20,10 +20,13 @@ public class FileService {
 
     private final Path permissionsFile =Path.of("data", "files.txt");
 
-    public FileService() {
+    private  final LogAnalyzerService logAnalyzerService;
+
+    public FileService(LogAnalyzerService logAnalyzerService) {
 
     try {
         Files.createDirectories(filesDirectory);
+        this.logAnalyzerService=logAnalyzerService;
     } catch (IOException e) {
         throw new RuntimeException(
                 "Impossible de creer le dossier des fichiers.",
@@ -31,6 +34,7 @@ public class FileService {
         );
     }
     loadFiles();
+    
 }
 
 
@@ -207,15 +211,24 @@ public class FileService {
         if(file==null){
             return null;
         }
-        if(!ControleAcces.canAccess(login, file, 'r')){
-            return null;
-        }Path filePath = filesDirectory.resolve(name);
 
-            try {
-                return Files.readString(filePath);
-            } catch (IOException e) {
-                return null;
-            }
+        Path filePath = filesDirectory.resolve(name);
+       try {
+        if (!ControleAcces.canAccess(login, file, 'r')) {
+            logAnalyzerService.seveLog(login,"LECTURE",file.getNom(),"REFUSE");
+
+            return null;
+        }
+
+        String contenu = Files.readString(filePath);
+
+        logAnalyzerService.seveLog(login, "LECTURE",file.getNom(),"OK");
+
+        return contenu;
+
+    } catch (IOException e) {
+        return null;
+    }
         
     }
     public boolean grantPermission(String name,String login,char p){

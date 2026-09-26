@@ -3,11 +3,15 @@ package ma.youcode.lineperm.service;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import  java.util.Map;
 import java.util.Optional;
+import java.time.format.DateTimeFormatter;
 
 import ma.youcode.lineperm.model.AccessLog;
 
@@ -21,6 +25,25 @@ public class LogAnalyzerService {
     public  LogAnalyzerService(){
         loadLogs();
     }
+
+    public void seveLog(String user, String action, String file, String result) throws IOException {
+    AccessLog log = new AccessLog(LocalDate.now(),LocalTime.now(),user,action,file,result
+    );
+
+    logs.add(log);
+    String heure = log.getHeure().format(DateTimeFormatter.ofPattern("HH:mm"));
+
+    String line = log.getDate() + ";"+ heure + ";"+ log.getUtilisateur() + ";"+ log.getAction() + ";"+ log.getFichier() + ";"+ log.getResultat()+ System.lineSeparator();
+
+    
+                Files.writeString(
+                    logFile,
+                    line,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND
+            );
+    
+}
 
 
     private void loadLogs(){
@@ -53,7 +76,7 @@ public class LogAnalyzerService {
             return null;
         }
 
-        AccessLog logLine = new AccessLog(parts[0],parts[1],parts[2],parts[3],parts[4],parts[5]);
+        AccessLog logLine = new AccessLog(LocalDate.parse(parts[0]),LocalTime.parse(parts[1]),parts[2],parts[3],parts[4],parts[5]);
         return logLine;
 
         

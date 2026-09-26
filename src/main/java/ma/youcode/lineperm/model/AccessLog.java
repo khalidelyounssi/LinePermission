@@ -1,8 +1,11 @@
 package ma.youcode.lineperm.model;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 public class AccessLog {
-    private final String date;
-    private final String heure;
+    private final LocalDate date;
+    private final LocalTime heure;
     private final String utilisateur;
     private final String action;
     private final String fichier;
@@ -10,7 +13,7 @@ public class AccessLog {
 
 
 
-    public AccessLog(String date, String heure, String utilisateur, String action, String fichier, String resultat) {
+    public AccessLog(LocalDate date, LocalTime heure, String utilisateur, String action, String fichier, String resultat) {
         this.date = date;
         this.heure = heure;
         this.utilisateur = utilisateur;
@@ -21,13 +24,13 @@ public class AccessLog {
 
 
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
 
 
-    public String getHeure() {
+    public LocalTime getHeure() {
         return heure;
     }
 

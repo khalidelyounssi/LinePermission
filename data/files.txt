@@ -1,2 +1,3 @@
 test1.txt;khalid;rwd;rw-
+khalid.txt;khalid;rwd;---
 note.txt;khalid;rwd;r--

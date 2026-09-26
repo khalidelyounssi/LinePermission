@@ -10,8 +10,9 @@ public class Main{
     public static void main(String[] args) {
 
         UserService userService = new UserService();
-        FileService fileService = new FileService();
         LogAnalyzerService logAnalyzerService =new LogAnalyzerService();
+        FileService fileService = new FileService(logAnalyzerService); 
+      
 
         ConsoleApp consoleApp =new ConsoleApp(userService, fileService,logAnalyzerService);
 

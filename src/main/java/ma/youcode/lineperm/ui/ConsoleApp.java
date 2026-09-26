@@ -421,10 +421,10 @@ private void handleChmod(String argument) {
                 );
                 break;
 
-            case "5":
-                System.out.println(logAnalyzerService.actionByFile()
-                );
-                break;
+            // case "5":
+            //     System.out.println(logAnalyzerService.actionByFile()
+            //     );
+            //     break;
 
             case "6":
                     System.out.print("Utilisateur : ");
