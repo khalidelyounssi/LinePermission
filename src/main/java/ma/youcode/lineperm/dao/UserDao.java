@@ -17,18 +17,19 @@ public class UserDao extends AbstractDao<User> {
 
         String sql = "INSERT INTO users " + "(login, password_hash) " + "VALUES (?, ?)";
 
-        try (
-                Connection connection = getConnection();
+        try {
+            Connection connection = getConnection();
 
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setString(1, user.getLogin());
+                statement.setString(1, user.getLogin());
 
-            statement.setString(2, user.getPasswordHash());
+                statement.setString(2, user.getPasswordHash());
 
-            int lignesAjoutees = statement.executeUpdate();
+                int lignesAjoutees = statement.executeUpdate();
 
-            return lignesAjoutees == 1;
+                return lignesAjoutees == 1;
+            }
 
         } catch (SQLException e) {
 
@@ -38,38 +39,39 @@ public class UserDao extends AbstractDao<User> {
         }
     }
 
-        public User findById(int id) {
+    public User findById(int id) {
 
-                    if (id <= 0) {
-                        return null;
+        if (id <= 0) {
+            return null;
+        }
+
+        String sql = "SELECT id, login, password_hash FROM users WHERE id = ?";
+
+        try {
+            Connection connection = getConnection();
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+
+                statement.setInt(1, id);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+
+                    if (resultSet.next()) {
+                        int userId = resultSet.getInt("id");
+                        String login = resultSet.getString("login");
+                        String passwordHash = resultSet.getString("password_hash");
+
+                        return new User(userId, login, passwordHash);
                     }
-
-                    String sql = "SELECT id, login, password_hash FROM users WHERE id = ?";
-
-                    try (
-                        Connection connection = getConnection();
-                        PreparedStatement statement = connection.prepareStatement(sql)
-                    ) {
-
-                        statement.setInt(1,id);
-
-                        try (ResultSet resultSet = statement.executeQuery()) {
-
-                            if (resultSet.next()) {
-                                int userId = resultSet.getInt("id");
-                                String login = resultSet.getString("login");
-                                String passwordHash = resultSet.getString("password_hash");
-
-                                return new User(userId,login,passwordHash);
-                            }
-                        }
-
-                    } catch (SQLException e) {
-                        System.out.println("Erreur pendant la recherche : " + e.getMessage());
-                    }
-
-                    return null;
                 }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erreur pendant la recherche : " + e.getMessage());
+        }
+
+        return null;
+    }
 
     public boolean delete(int id) {
 
@@ -79,15 +81,17 @@ public class UserDao extends AbstractDao<User> {
 
         String sql = "DELETE FROM users WHERE id = ?";
 
-        try (
-                Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+        try {
+            Connection connection = getConnection();
 
-            statement.setInt(1, id);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            int lignesSupprimees = statement.executeUpdate();
+                statement.setInt(1, id);
 
-            return lignesSupprimees == 1;
+                int lignesSupprimees = statement.executeUpdate();
+
+                return lignesSupprimees == 1;
+            }
 
         } catch (SQLException e) {
 
@@ -111,20 +115,22 @@ public class UserDao extends AbstractDao<User> {
 
         String sql = "SELECT id, login, password_hash FROM users WHERE login = ?";
 
-        try (
-                Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)) {
+        try {
+            Connection connection = getConnection();
 
-            statement.setString(1, username);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            try (ResultSet resultSet = statement.executeQuery()) {
+                statement.setString(1, username);
 
-                if (resultSet.next()) {
-                    int id = resultSet.getInt("id");
-                    String login = resultSet.getString("login");
-                    String passwordHash = resultSet.getString("password_hash");
+                try (ResultSet resultSet = statement.executeQuery()) {
 
-                    return new User(id,login,passwordHash);
+                    if (resultSet.next()) {
+                        int id = resultSet.getInt("id");
+                        String login = resultSet.getString("login");
+                        String passwordHash = resultSet.getString("password_hash");
+
+                        return new User(id, login, passwordHash);
+                    }
                 }
             }
 

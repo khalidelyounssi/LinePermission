@@ -1,6 +1,7 @@
 package ma.youcode.lineperm.model;
 
 public class AccessLog {
+    private final int id;
     private final String date;
     private final String heure;
     private final String utilisateur;
@@ -11,12 +12,21 @@ public class AccessLog {
 
 
     public AccessLog(String date, String heure, String utilisateur, String action, String fichier, String resultat) {
+        this(0, date, heure, utilisateur, action, fichier, resultat);
+    }
+
+    public AccessLog(int id, String date, String heure, String utilisateur, String action, String fichier, String resultat) {
+        this.id = id;
         this.date = date;
         this.heure = heure;
         this.utilisateur = utilisateur;
         this.action = action;
         this.fichier = fichier;
         this.resultat = resultat;
+    }
+
+    public int getId() {
+        return id;
     }
 
 

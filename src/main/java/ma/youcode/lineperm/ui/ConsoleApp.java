@@ -2,7 +2,6 @@ package ma.youcode.lineperm.ui;
 
 import java.util.Scanner;
 
-import java.util.Map;
 import java.util.Optional;
 
 import ma.youcode.lineperm.model.AccessLog;
@@ -74,8 +73,12 @@ public class ConsoleApp {
         handleLogin();
         break;
 
-         case "logout":
+        case "logout":
         handleLogout();
+        break;
+
+        case "delete-account":
+        handleDeleteAccount();
         break;
 
         case "touch":
@@ -181,6 +184,24 @@ private void handleLogout() {
     currentUser = null;
 
     System.out.println("Deconnexion reussie.");
+}
+
+private void handleDeleteAccount() {
+
+    if (currentUser == null) {
+        System.out.println("Aucun utilisateur connecte");
+        return;
+    }
+
+    boolean deleted = userService.deleteUser(currentUser.getId());
+
+    if (!deleted) {
+        System.out.println("Suppression impossible.");
+        return;
+    }
+
+    currentUser = null;
+    System.out.println("Compte supprime.");
 }
 
 private void handleTouch(String name) {
@@ -439,12 +460,10 @@ private void handleChmod(String argument) {
                     break;
 
             case "7":
-                Optional<Map.Entry<String, Long>> mostActive =logAnalyzerService.getMostActiveUser();
+                Optional<String> mostActive =logAnalyzerService.getMostActiveUser();
 
                 if (mostActive.isPresent()) {
-                    Map.Entry<String, Long> result = mostActive.get();
-                    System.out.println(result.getKey() + " : " + result.getValue()
-                    );
+                    System.out.println(mostActive.get());
                 } else {
                     System.out.println("Aucune donnée.");
                 }

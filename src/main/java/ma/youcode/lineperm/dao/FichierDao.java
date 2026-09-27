@@ -20,10 +20,10 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
         String sql = "INSERT INTO fichiers (nom, owner_id, droits) VALUES (?, (SELECT id FROM users WHERE login = ?), ?)";
 
-        try (
+        try {
             Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1,fichier.getNom());
             statement.setString(2,fichier.getOwner());
@@ -31,7 +31,8 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
             int lignesAjoutees = statement.executeUpdate();
 
-            return lignesAjoutees == 1;
+                return lignesAjoutees == 1;
+            }
 
         } catch (SQLException e) {
             System.out.println("Erreur pendant l'ajout du fichier : " + e.getMessage());
@@ -50,10 +51,10 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
         String sql = "SELECT f.nom, u.login AS owner, f.droits FROM fichiers f JOIN users u ON u.id = f.owner_id WHERE f.id = ?";
 
-        try (
+        try {
             Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1,id);
 
@@ -63,6 +64,7 @@ public class FichierDao extends AbstractDao<FichierProtege> {
                     return createFichier(resultSet);
                 }
             }
+        }
 
         } catch (SQLException e) {
             System.out.println("Erreur pendant la recherche du fichier : " + e.getMessage());
@@ -89,10 +91,10 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
         String sql = "SELECT f.nom, u.login AS owner, f.droits FROM fichiers f JOIN users u ON u.id = f.owner_id WHERE f.nom = ?";
 
-        try (
+        try {
             Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1,nom);
 
@@ -102,6 +104,7 @@ public class FichierDao extends AbstractDao<FichierProtege> {
                     return createFichier(resultSet);
                 }
             }
+        }
 
         } catch (SQLException e) {
             System.out.println("Erreur pendant la recherche du fichier : " + e.getMessage());
@@ -118,11 +121,11 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
         String sql = "SELECT f.nom, u.login AS owner, f.droits FROM fichiers f JOIN users u ON u.id = f.owner_id ORDER BY f.nom";
 
-        try (
+        try {
             Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet resultSet = statement.executeQuery()
-        ) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql);
+                    ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
                 FichierProtege fichier = createFichier(resultSet);
@@ -131,6 +134,7 @@ public class FichierDao extends AbstractDao<FichierProtege> {
                     fichiers.add(fichier);
                 }
             }
+        }
 
         } catch (SQLException e) {
             System.out.println("Erreur pendant la récupération des fichiers : " + e.getMessage());
@@ -153,10 +157,10 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
         String sql = "SELECT f.nom, u.login AS owner, f.droits FROM fichiers f JOIN users u ON u.id = f.owner_id WHERE f.owner_id = ? ORDER BY f.nom";
 
-        try (
+        try {
             Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1,userId);
 
@@ -170,6 +174,7 @@ public class FichierDao extends AbstractDao<FichierProtege> {
                     }
                 }
             }
+        }
 
         } catch (SQLException e) {
             System.out.println("Erreur pendant la recherche des fichiers : " + e.getMessage());
@@ -190,16 +195,17 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
         String sql = "DELETE FROM fichiers WHERE id = ?";
 
-        try (
+        try {
             Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1,id);
 
             int lignesSupprimees = statement.executeUpdate();
 
-            return lignesSupprimees == 1;
+                return lignesSupprimees == 1;
+            }
 
         } catch (SQLException e) {
             System.out.println("erreur pendant la suppression du fichier : " + e.getMessage());
@@ -224,16 +230,17 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
         String sql = "DELETE FROM fichiers WHERE nom = ?";
 
-        try (
+        try {
             Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1,nom);
 
             int lignesSupprimees = statement.executeUpdate();
 
-            return lignesSupprimees == 1;
+                return lignesSupprimees == 1;
+            }
 
         } catch (SQLException e) {
             System.out.println("erreur pendant la suppression du fichier : " + e.getMessage());
@@ -249,17 +256,18 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
         String sql = "UPDATE fichiers SET droits = ? WHERE id = ?";
 
-        try (
+        try {
             Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1,droits);
             statement.setInt(2,id);
 
             int lignesModifiees = statement.executeUpdate();
 
-            return lignesModifiees == 1;
+                return lignesModifiees == 1;
+            }
 
         } catch (SQLException e) {
             System.out.println("erreur pendant la modification des droits : " + e.getMessage());
@@ -284,17 +292,18 @@ public class FichierDao extends AbstractDao<FichierProtege> {
 
         String sql = "UPDATE fichiers SET droits = ? WHERE nom = ?";
 
-        try (
+        try {
             Connection connection = getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1,droits);
             statement.setString(2,nom);
 
             int lignesModifiees = statement.executeUpdate();
 
-            return lignesModifiees == 1;
+                return lignesModifiees == 1;
+            }
 
         } catch (SQLException e) {
             System.out.println("Erreur pendant la modification des droits : " + e.getMessage());
@@ -343,10 +352,6 @@ public class FichierDao extends AbstractDao<FichierProtege> {
             return false;
         }
 
-        if (droits.length() != 7) {
-            return false;
-        }
-
-        return droits.charAt(3) == '|';
+        return droits.matches("[r-][w-][d-]\\|[r-][w-][d-]");
     }
 }

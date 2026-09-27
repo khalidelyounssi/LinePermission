@@ -100,6 +100,15 @@ public class UserService{
     return user;
 }
 
+    public boolean deleteUser(int id) {
+
+        if (id <= 0) {
+            return false;
+        }
+
+        return userDao.delete(id);
+    }
+
 
 
 }
