@@ -2,7 +2,6 @@ package ma.youcode.lineperm.ui;
 
 import java.util.Scanner;
 
-import java.util.Map;
 import java.util.Optional;
 
 import ma.youcode.lineperm.model.AccessLog;
@@ -74,8 +73,12 @@ public class ConsoleApp {
         handleLogin();
         break;
 
-         case "logout":
+        case "logout":
         handleLogout();
+        break;
+
+        case "delete-account":
+        handleDeleteAccount();
         break;
 
         case "touch":
@@ -183,6 +186,24 @@ private void handleLogout() {
     System.out.println("Deconnexion reussie.");
 }
 
+private void handleDeleteAccount() {
+
+    if (currentUser == null) {
+        System.out.println("Aucun utilisateur connecte");
+        return;
+    }
+
+    boolean deleted = userService.deleteUser(currentUser.getId());
+
+    if (!deleted) {
+        System.out.println("Suppression impossible.");
+        return;
+    }
+
+    currentUser = null;
+    System.out.println("Compte supprime.");
+}
+
 private void handleTouch(String name) {
 
     if (currentUser == null) {
@@ -234,49 +255,49 @@ private void handleNano(String name) {
         return;
     }
 
-    if (name == null || name.isEmpty()) {
-        System.out.println("utilisation : nano <nomFichier>");
+    if (name == null || name.trim().isEmpty()) {
+        System.out.println("Utilisation : nano <nomFichier>");
         return;
     }
+
+    name = name.trim();
 
     if (fileService.findFile(name) == null) {
         System.out.println("Fichier introuvable.");
         return;
     }
 
-    if (!fileService.canWriteFile(
-            name,
-            currentUser.getLogin()
-    )) {
-        System.out.println("Permission denied.");
+    if (!fileService.canWriteFile(name,currentUser.getLogin())) {
+        System.out.println("Permission d'écriture refusée.");
         return;
     }
 
-    System.out.println(
-            "ecrivez le contenu. Tapez EOF pour terminer."
-    );
+    System.out.println("Écrivez le contenu du fichier.");
+    System.out.println("Écrivez EOF dans une nouvelle ligne pour terminer.");
 
-    String contenu = "";
+    StringBuilder contenu = new StringBuilder();
 
     while (scanner.hasNextLine()) {
 
-        String line = scanner.nextLine();
+        String ligne = scanner.nextLine();
 
-        if (line.equals("EOF")) {
+        if ("EOF".equals(ligne.trim())) {
             break;
         }
 
-        contenu = contenu + line + "\n";
+        if (contenu.length() > 0) {
+            contenu.append(System.lineSeparator());
+        }
+
+        contenu.append(ligne);
     }
 
-    boolean written = fileService.writeFile(name,currentUser.getLogin(),contenu);
+    boolean written = fileService.writeFile(name, currentUser.getLogin(),contenu.toString());
 
     if (written) {
         System.out.println("Fichier modifié.");
     } else {
-        System.out.println(
-                "impossible de modifier le fichier."
-        );
+        System.out.println("Écriture impossible.");
     }
 }
 private void handleCat(String name) {
@@ -291,8 +312,6 @@ private void handleCat(String name) {
         return;
     }
 
-    name = name.trim();
-
     if (fileService.findFile(name) == null) {
         System.out.println("Fichier introuvable.");
         return;
@@ -301,10 +320,11 @@ private void handleCat(String name) {
     String contenu = fileService.readFile(name,currentUser.getLogin());
 
     if (contenu == null) {
-        System.out.println("Permission denied.");
-    } else {
-        System.out.println(contenu);
+        System.out.println("Lecture impossible ou permission refusée.");
+        return;
     }
+
+    System.out.println(contenu);
 }
 
 
@@ -440,12 +460,10 @@ private void handleChmod(String argument) {
                     break;
 
             case "7":
-                Optional<Map.Entry<String, Long>> mostActive =logAnalyzerService.getMostActiveUser();
+                Optional<String> mostActive =logAnalyzerService.getMostActiveUser();
 
                 if (mostActive.isPresent()) {
-                    Map.Entry<String, Long> result = mostActive.get();
-                    System.out.println(result.getKey() + " : " + result.getValue()
-                    );
+                    System.out.println(mostActive.get());
                 } else {
                     System.out.println("Aucune donnée.");
                 }

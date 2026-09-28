@@ -11,8 +11,7 @@ public class Main{
 
         UserService userService = new UserService();
         LogAnalyzerService logAnalyzerService =new LogAnalyzerService();
-        FileService fileService = new FileService(logAnalyzerService); 
-      
+        FileService fileService = new FileService(logAnalyzerService);
 
         ConsoleApp consoleApp =new ConsoleApp(userService, fileService,logAnalyzerService);
 
