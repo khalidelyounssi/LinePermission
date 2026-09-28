@@ -35,8 +35,6 @@ public class AccessLog {
         return date;
     }
 
-
-
     public String getHeure() {
         return heure;
     }
